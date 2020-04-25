@@ -17,7 +17,9 @@
 
   :profiles {:dev {:env {:telegram-token ""
                          :trello-mail ""
-                         :mail-server ""
+                         :mail-server "smtp.yandex.ru"
+                         :mail-port "465"
                          :mail-user ""
-                         :mail-password ""}}
+                         :mail-pass ""
+                         :allowed-user ""}}
              :uberjar {:aot :all}})
