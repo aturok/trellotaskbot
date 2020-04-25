@@ -10,6 +10,18 @@
 
 (def token (env :telegram-token))
 
+(defn send-mail [to subject body]
+  (postal/send-message {:host (env :mail-server)
+                        :port (Integer/parseInt (env :mail-port))
+                        :user (env :mail-user)
+                        :sender (env :mail-user)
+                        :pass (env :mail-pass)
+                        :ssl true}
+                       {:from (env :mail-user)
+                        :to to
+                        :subject subject
+                        :body body}))
+
 (h/defhandler handler
   (h/command-fn "start"
     (fn [{{id :id :as chat} :chat}]
@@ -29,21 +41,11 @@
                      "")]
        (if (= (str id) (env :allowed-user))
          (do
-           (postal/send-message {:host (env :mail-server)
-                                 :port (Integer/parseInt (env :mail-port))
-                                 :user (env :mail-user)
-                                 :sender (env :mail-user)
-                                 :pass (env :mail-pass)
-                                 :ssl true}
-                                {:from (env :mail-user)
-                                 :to (env :trello-mail)
-                                 :subject subj
-                                 :body details})
+           (send-mail (env :trello-mail) subj details)
            (t/send-text token id "Recorded!"))
          (t/send-text token id "I don't know you"))))))
 
-(defn -main
-  [& args]
+(defn -main [& _]
   (when (ss/blank? token)
     (println "Please provide token in TELEGRAM_TOKEN environment variable!")
     (System/exit 1))
